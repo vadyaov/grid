@@ -1,0 +1,8 @@
+{
+  "cmake.configureOnOpen": true,
+  "cmake.configureSettings": {
+    "CMAKE_C_COMPILER": "/usr/bin/gcc",
+    "CMAKE_CXX_COMPILER": "/usr/bin/g++"
+  },
+  "cmake.generator": "Ninja"
+}
