@@ -1,7 +1,7 @@
 #include "grid_scene.h"
 
 #include <QGraphicsSceneMouseEvent>
-#include <qgraphicsitem.h>
+#include <QKeyEvent>
 
 #include <iostream>
 #include <qnamespace.h>
@@ -19,31 +19,37 @@ void GridCell::setState(CellState state) noexcept {
   updateColor();
 }
 
-void GridCell::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent) {
-  if (auto scene = dynamic_cast<GridScene*>(this->scene())) {
-    scene->handleMouseClick(this);
-  }
-  QGraphicsRectItem::mousePressEvent(mouseEvent);
-}
+// void GridCell::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent) {
+//   if (auto scene = dynamic_cast<GridScene*>(this->scene())) {
+//     scene->handleMouseClick(this);
+//   }
+//   // QGraphicsRectItem::mousePressEvent(mouseEvent);
+// }
 
-void GridCell::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent) {
-  if (mouseEvent->button() == Qt::MouseButton::LeftButton) {
-    if (auto scene = dynamic_cast<GridScene*>(this->scene())) {
-      scene->handleMouseClick(this);
-    }
-  }
-  QGraphicsRectItem::mouseMoveEvent(mouseEvent);
-}
+// void GridCell::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent) {
+//   if (mouseEvent->button() == Qt::MouseButton::LeftButton) {
+//     if (auto scene = dynamic_cast<GridScene*>(this->scene())) {
+//       scene->handleMouseClick(this);
+//     }
+//   }
+//   // QGraphicsRectItem::mouseMoveEvent(mouseEvent);
+// }
+
+// void GridCell::hoverMoveEvent(QGraphicsSceneHoverEvent *event) {
+//   if (auto scene = dynamic_cast<GridScene*>(this->scene())) {
+//     scene->handleMouseClick(this);
+//   }
+// }
 
 void GridCell::updateColor() {
   if (state_ == CellState::Default) {
-    setBrush(QColor(211, 211, 211));
+    setBrush(Qt::lightGray);
   } else if (state_ == CellState::Gray) {
-    setBrush(QColor(69, 69, 69));
+    setBrush(Qt::gray);
+  } else if (state_ == CellState::DarkGray) {
+    setBrush(Qt::darkGray);
   } else if (state_ == CellState::Black) {
     setBrush(Qt::black);
-  } else {
-
   }
 }
 
@@ -69,6 +75,49 @@ GridCell* GridScene::cellAt(int row, int col) {
   return nullptr;
 }
 
+void GridScene::refreshState() {
+  for (int i = 0; i != ROWS; ++i) {
+    for (int j = 0; j != COLS; ++j) {
+      if (m_cells_[i][j]) {
+        m_cells_[i][j]->setState(CellState::Default);
+      }
+    }
+  }
+}
+
+void GridScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent) {
+  if (mouseEvent->button() == Qt::LeftButton) {
+    auto item = itemAt(mouseEvent->scenePos(), QTransform());
+    if (GridCell* cell = dynamic_cast<GridCell*>(item)) {
+      last_processed_cell_ = cell;
+    }
+  }
+}
+
+void GridScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent) {
+  if (mouseEvent->button() == Qt::LeftButton) {
+    last_processed_cell_ = nullptr;
+  }
+}
+
+void GridScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent) {
+  if (mouseEvent->buttons() & Qt::LeftButton) {
+    auto item = itemAt(mouseEvent->scenePos(), QTransform());
+    if (GridCell* cell = dynamic_cast<GridCell*>(item)) {
+      if (last_processed_cell_ != cell) {
+        handleMouseClick(cell);
+        last_processed_cell_ = cell;
+      }
+    }
+  }
+}
+
+void GridScene::keyPressEvent(QKeyEvent *keyEvent) {
+  if (keyEvent->key() == Qt::Key_D) {
+    refreshState();
+  }
+}
+
 GridScene::~GridScene() {
   for (int i = 0; i != ROWS; ++i) {
     for (int j = 0; j != COLS; ++j) {
@@ -83,6 +132,8 @@ static void updateCellState(GridCell* cell) {
     if (current_state == CellState::Default) {
       cell->setState(CellState::Gray);
     } else if (current_state == CellState::Gray) {
+      cell->setState(CellState::DarkGray);
+    } else if (current_state == CellState::DarkGray) {
       cell->setState(CellState::Black);
     }
 }

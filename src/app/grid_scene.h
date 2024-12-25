@@ -3,14 +3,15 @@
 #include <QGraphicsScene>
 #include <QGraphicsItem>
 
-#define ROWS 20
-#define COLS 20
-#define CELL_SIZE 20
+#define ROWS 30
+#define COLS 30
+#define CELL_SIZE 15
 #define GAP 3
 
 enum class CellState {
   Default,
   Gray,
+  DarkGray,
   Black
 };
 
@@ -22,9 +23,10 @@ class GridCell final : public QGraphicsRectItem {
 
     void setState(CellState state) noexcept;
 
-  protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent) override;
-    void mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent) override;
+  // protected:
+    // void mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent) override;
+    // void mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent) override;
+    // void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
 
   private:
     CellState state_;
@@ -39,13 +41,20 @@ public:
     GridScene(QObject* parent = nullptr);
     ~GridScene();
 
-    void extracted();
     void handleMouseClick(GridCell *cell);
 
     GridCell* cellAt(int row, int col);
 
-/* protected: */
+    void refreshState();
+
+protected:
+void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
+void mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
+void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
+void keyPressEvent(QKeyEvent *keyEvent) override;
 
 private:
     QVector<QVector<GridCell*>> m_cells_;
+
+    GridCell* last_processed_cell_ = nullptr;
 };
