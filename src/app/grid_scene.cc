@@ -3,8 +3,6 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QKeyEvent>
 
-#include <iostream>
-#include <qnamespace.h>
 
 GridCell::GridCell(qreal x, qreal y, qreal size, QGraphicsItem* parent)
   : QGraphicsRectItem(x, y, size, size, parent),
