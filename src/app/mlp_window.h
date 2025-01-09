@@ -2,7 +2,6 @@
 
 #include <QWidget>
 #include <QGraphicsView>
-#include <qevent.h>
 
 #include "grid_scene.h"
 

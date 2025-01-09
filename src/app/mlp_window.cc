@@ -1,13 +1,8 @@
 #include "mlp_window.h"
-#include <qkeysequence.h>
-#include <qnamespace.h>
-#include <qshortcut.h>
-#include <qsizepolicy.h>
 
 #include <QShortcut>
 
 #include <iostream>
-#include <qwidget.h>
 
 MlpWindow::MlpWindow(QWidget* parent) : QWidget(parent),
   grid_scene_{new GridScene(this)}
