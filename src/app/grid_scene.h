@@ -3,10 +3,10 @@
 #include <QGraphicsScene>
 #include <QGraphicsItem>
 
-#define ROWS 30
-#define COLS 30
-#define CELL_SIZE 15
-#define GAP 3
+#define ROWS 28
+#define COLS 28
+#define CELL_SIZE 14
+#define GAP 2
 
 enum class CellState {
   Default,
@@ -48,7 +48,7 @@ public:
     void refreshState();
 
 protected:
-void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
+// void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
 void mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
 void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
 void keyPressEvent(QKeyEvent *keyEvent) override;

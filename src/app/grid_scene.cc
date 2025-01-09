@@ -2,6 +2,9 @@
 
 #include <QGraphicsSceneMouseEvent>
 #include <QKeyEvent>
+#include <qtransform.h>
+
+#include <iostream>
 
 
 GridCell::GridCell(qreal x, qreal y, qreal size, QGraphicsItem* parent)
@@ -83,19 +86,11 @@ void GridScene::refreshState() {
   }
 }
 
-void GridScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent) {
-  if (mouseEvent->button() == Qt::LeftButton) {
-    auto item = itemAt(mouseEvent->scenePos(), QTransform());
-    if (GridCell* cell = dynamic_cast<GridCell*>(item)) {
-      last_processed_cell_ = cell;
-    }
-  }
-}
+// void GridScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent) {
+// }
 
 void GridScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent) {
-  if (mouseEvent->button() == Qt::LeftButton) {
-    last_processed_cell_ = nullptr;
-  }
+  last_processed_cell_ = nullptr;
 }
 
 void GridScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent) {
@@ -124,7 +119,7 @@ GridScene::~GridScene() {
   }
 }
 
-static void updateCellState(GridCell* cell) {
+static inline void updateCellState(GridCell* cell) {
   if (!cell) return;
     CellState current_state = cell->getState();
     if (current_state == CellState::Default) {
