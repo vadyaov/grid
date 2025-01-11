@@ -19,28 +19,6 @@ void GridCell::setState(CellState state) noexcept {
   updateColor();
 }
 
-// void GridCell::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent) {
-//   if (auto scene = dynamic_cast<GridScene*>(this->scene())) {
-//     scene->handleMouseClick(this);
-//   }
-//   // QGraphicsRectItem::mousePressEvent(mouseEvent);
-// }
-
-// void GridCell::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent) {
-//   if (mouseEvent->button() == Qt::MouseButton::LeftButton) {
-//     if (auto scene = dynamic_cast<GridScene*>(this->scene())) {
-//       scene->handleMouseClick(this);
-//     }
-//   }
-//   // QGraphicsRectItem::mouseMoveEvent(mouseEvent);
-// }
-
-// void GridCell::hoverMoveEvent(QGraphicsSceneHoverEvent *event) {
-//   if (auto scene = dynamic_cast<GridScene*>(this->scene())) {
-//     scene->handleMouseClick(this);
-//   }
-// }
-
 void GridCell::updateColor() {
   if (state_ == CellState::Default) {
     setBrush(Qt::lightGray);
@@ -84,9 +62,6 @@ void GridScene::refreshState() {
     }
   }
 }
-
-// void GridScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent) {
-// }
 
 void GridScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent) {
   last_processed_cell_ = nullptr;
