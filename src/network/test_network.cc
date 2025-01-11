@@ -9,6 +9,6 @@ int main() {
     MatrixXd inputMatrix(2, 1);
     inputMatrix(0, 0) = 3;
     inputMatrix(1, 0) = 2;
-    std::cout << net.feedForward(inputMatrix);
+    std::cout << net.FeedForward(inputMatrix);
     return 0;
 }
