@@ -45,6 +45,10 @@ private:
   std::vector<MatrixXd> biases_;  // biases for layers [1, sizes)
   std::vector<MatrixXd> weights_; // weights between layers
 
+  bool isTrained = false;
+  bool LoadTraining(const char* filename);
+  void CacheParameters(const char* filename);
+
   static MatrixXd Sigmoid(const MatrixXd &z);
   static MatrixXd SigmoidPrime(const MatrixXd &z);
   static MatrixXd CostDeriative(const MatrixXd &output_actiavtions,

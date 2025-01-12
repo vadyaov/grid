@@ -1,6 +1,8 @@
 add_executable(mlp
     mlp_window.cc
     grid_scene.cc
+    ../network/network.cc
+    ../loader/loader.cc
     main.cc
 )
 

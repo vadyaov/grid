@@ -3,6 +3,9 @@
 #include <iostream>
 #include <random>
 #include <vector>
+#include <fstream>
+
+static const char* CACHED_TRAINING_PATH = "/home/vadim/Projects/mlp/src/cached_training";
 
 static inline double RandomGaussValue() {
   static std::random_device rd{};
@@ -24,8 +27,97 @@ MatrixXd Network::CostDeriative(const MatrixXd& output_actiavtions, const Matrix
   return output_actiavtions - y;
 }
 
+bool Network::LoadTraining(const char* filename) {
+  std::ifstream file(filename, std::ios::binary);
+  if (!file) return false;
+
+  try {
+    // Read number of layers
+    int layers;
+    file.read(reinterpret_cast<char*>(&layers), sizeof(layers));
+    if (layers <= 0) return false;
+    layers_ = layers;
+
+    // Read number of neurons in layers
+    sizes_.clear();
+    sizes_.reserve(layers);
+    for (int i = 0; i < layers; ++i) {
+      int size;
+      file.read(reinterpret_cast<char*>(&size), sizeof(size));
+      if (size <= 0) return false;
+      sizes_.push_back(size);
+    }
+
+    // Read biases
+    biases_.clear();
+    biases_.reserve(layers - 1);
+    for (int i = 1; i < layers_; ++i) {
+      Eigen::Index rows, cols;
+      file.read(reinterpret_cast<char*>(&rows), sizeof(rows));
+      file.read(reinterpret_cast<char*>(&cols), sizeof(cols));
+
+      MatrixXd matrix(rows, cols);
+      file.read(reinterpret_cast<char*>(matrix.data()), rows * cols * sizeof(double));
+      biases_.push_back(std::move(matrix));
+    }
+
+    // Read weights
+    weights_.clear();
+    weights_.reserve(layers - 1);
+    for (int i = 1; i < layers_; ++i) {
+      Eigen::Index rows, cols;
+      file.read(reinterpret_cast<char*>(&rows), sizeof(rows));
+      file.read(reinterpret_cast<char*>(&cols), sizeof(cols));
+
+      MatrixXd matrix(rows, cols);
+      file.read(reinterpret_cast<char*>(matrix.data()), rows * cols * sizeof(double));
+      weights_.push_back(std::move(matrix));
+    }
+  } catch (const std::exception& /* exception */) {
+    return false;
+  }
+
+  return true;
+}
+
+void Network::CacheParameters(const char* filename) {
+  std::ofstream file(filename, std::ios::binary);
+  if (!file) {
+    throw std::runtime_error("Cannot create cache file");
+  }
+
+  file.write(reinterpret_cast<const char*>(&layers_), sizeof(layers_));
+  for (int size : sizes_) {
+    file.write(reinterpret_cast<const char*>(&size), sizeof(size));
+  }
+
+  for (const auto& matrix : biases_) {
+    Eigen::Index rows = matrix.rows();
+    Eigen::Index cols = matrix.cols();
+    file.write(reinterpret_cast<const char*>(&rows), sizeof(rows));
+    file.write(reinterpret_cast<const char*>(&cols), sizeof(cols));
+    file.write(reinterpret_cast<const char*>(matrix.data()), rows * cols * sizeof(double));
+  }
+
+  for (const auto& matrix : weights_) {
+    Eigen::Index rows = matrix.rows();
+    Eigen::Index cols = matrix.cols();
+    file.write(reinterpret_cast<const char*>(&rows), sizeof(rows));
+    file.write(reinterpret_cast<const char*>(&cols), sizeof(cols));
+    file.write(reinterpret_cast<const char*>(matrix.data()), rows * cols * sizeof(double));
+  }
+}
 
 Network::Network(std::vector<int> &&sizes) : sizes_{std::move(sizes)} {
+  // TODO: add cache versions + validate data after loading from cache
+  if (LoadTraining(CACHED_TRAINING_PATH)) {
+    isTrained = true;
+    return;
+  }
+
+  // TODO: InitializeNetwork() private method
+  // TODO: InitializeNetwork() private method
+  // TODO: InitializeNetwork() private method
   layers_ = static_cast<int>(sizes_.size());
   biases_.reserve(layers_ - 1);
   weights_.reserve(layers_ - 1);
@@ -52,6 +144,9 @@ MatrixXd Network::FeedForward(MatrixXd a) const {
 void Network::SGD(std::vector<VectorXdPair> &training_data, size_t epochs,
                   size_t mini_batch_size, double eta,
                   const std::vector<VectorXdPair> *test_data) {
+  std::cout << "Start training..." << std::endl;
+  if (isTrained) return;
+
   int n_test = test_data ? test_data->size() : 0;
   int n      = training_data.size();
 
@@ -81,6 +176,12 @@ void Network::SGD(std::vector<VectorXdPair> &training_data, size_t epochs,
       std::cout << "Epoch " << j << " complete" << std::endl;
     }
   }
+  try {
+    CacheParameters(CACHED_TRAINING_PATH);
+  } catch(const std::exception& e) {
+    std::cerr << "Failed to cache parameters: " << e.what() << std::endl;
+  }
+  std::cout << "End training." << std::endl;
 }
 
 void Network::UpdateMiniBatch(const std::vector<VectorXdPair> &mini_batch, double eta) {
