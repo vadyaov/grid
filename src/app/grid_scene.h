@@ -10,6 +10,7 @@
 
 enum class CellState {
   Default,
+  LightGray,
   Gray,
   DarkGray,
   Black
@@ -23,10 +24,7 @@ class GridCell final : public QGraphicsRectItem {
 
     void setState(CellState state) noexcept;
 
-  // protected:
-    // void mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent) override;
-    // void mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent) override;
-    // void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
+    double NormalizePixel() const noexcept;
 
   private:
     CellState state_;
@@ -46,6 +44,8 @@ public:
     GridCell* cellAt(int row, int col);
 
     void refreshState();
+
+    std::vector<double> GetSnapshot() const;
 
 protected:
 // void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent) override;

@@ -1,5 +1,6 @@
 add_executable(network
     network.cc
+    ../loader/loader.cc
     test_network.cc
 )
 

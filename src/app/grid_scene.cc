@@ -19,8 +19,15 @@ void GridCell::setState(CellState state) noexcept {
   updateColor();
 }
 
+double GridCell::NormalizePixel() const noexcept {
+  int black_component = brush().color().black();
+  return static_cast<double>(black_component) / 255.0;
+}
+
 void GridCell::updateColor() {
   if (state_ == CellState::Default) {
+    setBrush(Qt::white);
+  } else if (state_ == CellState::LightGray) {
     setBrush(Qt::lightGray);
   } else if (state_ == CellState::Gray) {
     setBrush(Qt::gray);
@@ -63,8 +70,24 @@ void GridScene::refreshState() {
   }
 }
 
+std::vector<double> GridScene::GetSnapshot() const {
+  const int grid_size = static_cast<int>(m_cells_.size());
+  std::vector<double> snapshot;
+  snapshot.reserve(grid_size);
+  for (const auto& row : m_cells_) {
+    for (const auto& cell : row) {
+      snapshot.push_back(cell->NormalizePixel());
+    }
+  }
+  return snapshot;
+}
+
 void GridScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent) {
   last_processed_cell_ = nullptr;
+  auto item = itemAt(mouseEvent->scenePos(), QTransform());
+  if (GridCell* cell = dynamic_cast<GridCell*>(item)) {
+    std:: cout << cell->NormalizePixel() << std::endl;
+  }
 }
 
 void GridScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent) {
@@ -97,6 +120,8 @@ static inline void updateCellState(GridCell* cell) {
   if (!cell) return;
     CellState current_state = cell->getState();
     if (current_state == CellState::Default) {
+      cell->setState(CellState::LightGray);
+    } else if (current_state == CellState::LightGray) {
       cell->setState(CellState::Gray);
     } else if (current_state == CellState::Gray) {
       cell->setState(CellState::DarkGray);

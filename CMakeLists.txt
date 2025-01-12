@@ -17,4 +17,3 @@ find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 add_subdirectory(src/app)
 add_subdirectory(src/network)
-add_subdirectory(src/loader)

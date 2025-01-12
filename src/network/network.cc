@@ -99,8 +99,8 @@ void Network::UpdateMiniBatch(const std::vector<VectorXdPair> &mini_batch, doubl
   }
 
   for (const auto& [x, y] : mini_batch) {
-    std::cout << "nabla_b.size() = " << nabla_b.size() << std::endl;
-    std::cout << "nabla_w.size() = " << nabla_w.size() << std::endl;
+    // std::cout << "nabla_b.size() = " << nabla_b.size() << std::endl;
+    // std::cout << "nabla_w.size() = " << nabla_w.size() << std::endl;
 
     // Градиент функции стоимости
     auto [delta_nabla_b, delta_nabla_w] = Backprop(x, y);
@@ -110,8 +110,8 @@ void Network::UpdateMiniBatch(const std::vector<VectorXdPair> &mini_batch, doubl
     }
   }
 
-  std::cout << "weights_.size() = " << weights_.size() << std::endl;
-  std::cout << "biases_.size() = " << biases_.size() << std::endl;
+  // std::cout << "weights_.size() = " << weights_.size() << std::endl;
+  // std::cout << "biases_.size() = " << biases_.size() << std::endl;
 
   double learning_rate = eta / mini_batch.size();
   for (size_t i = 0; i < weights_.size(); ++i) {

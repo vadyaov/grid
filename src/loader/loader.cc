@@ -1,5 +1,6 @@
 #include "loader.h"
 
+#include <fstream>
 #include <iostream>
 
 namespace {

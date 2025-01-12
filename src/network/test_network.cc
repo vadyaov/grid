@@ -1,11 +1,11 @@
 #include "network.h"
+#include "../loader/loader.h"
 
 #include <iostream>
 
 int main() {
     Network net({784, 30, 10});
-
-    MatrixXd inputMatrix = MatrixXd::Random(784, 1);
-    std::cout << net.FeedForward(inputMatrix);
+    auto dataset = MNISTLoader::LoadData("/home/vadim/Projects/mlp/data/");
+    net.SGD(dataset.training_data, 30, 10, 3.0, &dataset.test_data);
     return 0;
 }
