@@ -12,9 +12,18 @@ static inline double RandomGaussValue() {
   return normal(gen);
 }
 
-static inline MatrixXd sigmoid(const MatrixXd &z) {
+MatrixXd Network::Sigmoid(const MatrixXd &z) {
   return (1.0 / (1.0 + (-z).array().exp())).matrix();
 }
+
+MatrixXd Network::SigmoidPrime(const MatrixXd &z) {
+  return (Sigmoid(z).array() * (1 - Sigmoid(z).array())).matrix();
+}
+
+MatrixXd Network::CostDeriative(const MatrixXd& output_actiavtions, const MatrixXd& y) {
+  return output_actiavtions - y;
+}
+
 
 Network::Network(std::vector<int> &&sizes) : sizes_{std::move(sizes)} {
   layers_ = static_cast<int>(sizes_.size());
@@ -35,7 +44,7 @@ Network::Network(std::vector<int> &&sizes) : sizes_{std::move(sizes)} {
 
 MatrixXd Network::FeedForward(MatrixXd a) const {
   for (size_t i = 0; i < biases_.size(); ++i) {
-    a = sigmoid(weights_[i] * a + biases_[i]);
+    a = Sigmoid(weights_[i] * a + biases_[i]);
   }
   return a;
 }
@@ -45,8 +54,12 @@ void Network::SGD(std::vector<VectorXdPair> &training_data, size_t epochs,
                   const std::vector<VectorXdPair> *test_data) {
   int n_test = test_data ? test_data->size() : 0;
   int n      = training_data.size();
+
+  std::random_device rd;
+  std::mt19937 gen(rd());
+
   for (int j = 0; j < epochs; ++j) {
-    std::random_shuffle(training_data.begin(), training_data.end());
+    std::shuffle(training_data.begin(), training_data.end(), gen);
     std::vector<std::vector<VectorXdPair>> mini_batches;
     // (n + k - 1) / k -- всегда выделим достаточно места, даже если не делится нацело
     mini_batches.reserve((n + mini_batch_size - 1) / mini_batch_size);
@@ -120,9 +133,33 @@ Network::Backprop(const Eigen::VectorXd& x, const Eigen::VectorXd& y) {
     nabla_w.emplace_back(MatrixXd::Zero(w.rows(), w.cols()));
   }
 
-  // TODO: continue
-  // TODO: continue
-  // TODO: continue
+  MatrixXd activation = x.matrix();
+  std::vector<MatrixXd> activations {activation};
+  std::vector<MatrixXd> zs;
+
+  // Прямой проход
+  for (size_t i = 0; i < biases_.size(); ++i) {
+    MatrixXd z = weights_[i] * activation + biases_[i];
+    zs.push_back(z);
+    activation = Sigmoid(z);
+    activations.push_back(activation);
+  }
+
+  // Обратный проход
+  MatrixXd delta = CostDeriative(activations.back(), y).array() *
+                   SigmoidPrime(zs.back()).array();
+  
+  nabla_b.back() = delta;
+  nabla_w.back() = delta * activations[activations.size() - 2].transpose();
+
+  for (int l = 2; l < layers_; ++l) {
+    const MatrixXd& z = zs[zs.size() - l];
+    MatrixXd sp = SigmoidPrime(z);
+    delta = (weights_[weights_.size() - l + 1].transpose() * delta).array() * sp.array();
+    nabla_b[nabla_b.size() - l] = delta;
+    nabla_w[nabla_w.size() - l] = delta *
+        activations[activations.size() - l - 1].transpose();
+  }
 
   return {nabla_b, nabla_w};
 }

@@ -4,5 +4,9 @@
     "CMAKE_C_COMPILER": "/usr/bin/gcc",
     "CMAKE_CXX_COMPILER": "/usr/bin/g++"
   },
-  "cmake.generator": "Unix Makefiles"
+  "cmake.generator": "Unix Makefiles",
+  "clangd.arguments": [
+    "--header-insertion=never"
+  ],
+  "editor.inlayHints.enabled": false
 }
