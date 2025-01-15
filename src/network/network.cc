@@ -135,7 +135,10 @@ Network::Network(std::vector<int> &&sizes) : sizes_{std::move(sizes)} {
 }
 
 MatrixXd Network::FeedForward(MatrixXd a) const {
+  std::cout << a.reshaped(28, 28).transpose() << std::endl;
   for (size_t i = 0; i < biases_.size(); ++i) {
+    std::cout << weights_[i].rows() << " " << weights_[i].cols() << std::endl;
+    std::cout << a.rows() << " " << a.cols() << std::endl << std::endl;
     a = Sigmoid(weights_[i] * a + biases_[i]);
   }
   return a;

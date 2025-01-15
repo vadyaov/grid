@@ -12,6 +12,8 @@ class MlpWindow : public QWidget {
 public:
   MlpWindow(QWidget* parent = nullptr);
 
+int GuessNumber() const;
+
 private:
   GridScene* grid_scene_;
   QGraphicsView* view_;
