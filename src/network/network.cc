@@ -111,7 +111,7 @@ void Network::CacheParameters(const char* filename) {
 Network::Network(std::vector<int> &&sizes) : sizes_{std::move(sizes)} {
   // TODO: add cache versions + validate data after loading from cache
   if (LoadTraining(CACHED_TRAINING_PATH)) {
-    isTrained = true;
+    trained_ = true;
     return;
   }
 
@@ -148,7 +148,6 @@ void Network::SGD(std::vector<VectorXdPair> &training_data, size_t epochs,
                   size_t mini_batch_size, double eta,
                   const std::vector<VectorXdPair> *test_data) {
   std::cout << "Start training..." << std::endl;
-  if (isTrained) return;
 
   int n_test = test_data ? test_data->size() : 0;
   int n      = training_data.size();

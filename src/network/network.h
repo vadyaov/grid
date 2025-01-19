@@ -38,6 +38,7 @@ public:
   int Evaluate(const std::vector<VectorXdPair> &test_data);
 
   void dump() const noexcept;
+  bool isTrained() const noexcept { return trained_; }
 
 private:
   int layers_;                    // number of layers
@@ -45,7 +46,7 @@ private:
   std::vector<MatrixXd> biases_;  // biases for layers [1, sizes)
   std::vector<MatrixXd> weights_; // weights between layers
 
-  bool isTrained = false;
+  bool trained_ = false;
   bool LoadTraining(const char* filename);
   void CacheParameters(const char* filename);
 
